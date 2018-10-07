@@ -1,9 +1,11 @@
 import React from 'react'
 
+import SearchForm from "./SearchForm"
+
 const Home = () => (
-    <div>
-        Application for searching flights.
-    </div>
+        <div>
+            <SearchForm />
+        </div>
 )
 
 export default Home

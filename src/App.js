@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import './App.css'
-import {Router, Route} from 'react-router'
+import {Route, Router} from 'react-router'
+import {Col} from 'reactstrap'
 
 import history from './routes/history'
 import Home from './components/Home'
@@ -10,7 +11,9 @@ class App extends Component {
     render() {
         return (
             <Router history={history}>
-                <Route exact path="/" component={Home}/>
+                <Col sm="12" lg={{size: 8, offset: 2}} className='mt-5'>
+                    <Route exact path="/" component={Home}/>
+                </Col>
             </Router>
         )
     }
