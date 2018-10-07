@@ -11,7 +11,7 @@ import Suggestions from './Suggestions'
 import ErrorBar from './ErrorBar'
 import history from '../routes/history'
 import {connect} from 'react-redux'
-import {setResults, setCurrency} from "../actions/actionCreators"
+import {setCurrency, setErrorMessage, setResults} from "../actions/actionCreators"
 
 class SearchForm extends React.Component {
 
@@ -19,7 +19,6 @@ class SearchForm extends React.Component {
         super(props)
         this.state = {
             date: moment(),
-            focused: null,
             from: "",
             fromId: "",
             to: "",
@@ -69,6 +68,11 @@ class SearchForm extends React.Component {
 
     handleSubmit = (event) => {
         event.preventDefault()
+        this.props.setErrorMessage("")
+        if (!this.state.fromId || !this.state.toId) {
+            this.props.setErrorMessage("Please choose from the suggestions.")
+            return
+        }
         axios.get(`${API_URL}flights?v=2&locale=en&flyFrom=${this.state.fromId}&to=${this.state.toId}&dateFrom=${this.state.date.format('DD/MM/YYYY')}`)
             .then(({data}) => {
                 this.setState({
@@ -78,16 +82,18 @@ class SearchForm extends React.Component {
                 this.props.setCurrency(data.currency)
                 history.push('results')
             })
-            .catch((response) => {
-                this.setState({
-                    errorMessage: "Oopps.. Something went wrong. Search results not loaded."
-                })
+            .catch(() => {
+                this.props.setErrorMessage("Oopps.. Something went wrong. Search results not loaded.")
             })
     }
 
     render() {
         return (
             <Col>
+                {this.props.errorMessage ?
+                <ErrorBar appError={this.props.errorMessage} dismissError={() => {
+                    this.props.setErrorMessage("")
+                }}/> : null}
                 <Form onSubmit={this.handleSubmit}>
                     <Row>
                         <Label for="from" className="col-form-label">From:</Label>
@@ -124,8 +130,6 @@ class SearchForm extends React.Component {
                             <Button type="submit" className="btn btn-primary float-xs-right">Search</Button>
                         </Col>
                     </Row>
-                    {this.state.errorMessage ?
-                        <ErrorBar appError={this.state.errorMessage} dismissError={() => {this.setState({errorMessage: ""})}}/> : null}
                 </Form>
             </Col>
         )
@@ -139,6 +143,7 @@ export default connect(
     }),
     (dispatch) => ({
         setResults: (results) => dispatch(setResults(results)),
-        setCurrency: (currency) => dispatch(setCurrency(currency))
+        setCurrency: (currency) => dispatch(setCurrency(currency)),
+        setErrorMessage: (errorMessage) => dispatch(setErrorMessage(errorMessage))
     })
 )(SearchForm)
