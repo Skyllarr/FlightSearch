@@ -8,6 +8,8 @@ import 'react-datepicker/dist/react-datepicker.css'
 import axios from 'axios'
 import {API_URL} from "../apiUtils/Urls"
 import Suggestions from './Suggestions'
+import ErrorBar from './ErrorBar'
+import history from '../routes/history'
 
 class SearchForm extends React.Component {
 
@@ -22,6 +24,7 @@ class SearchForm extends React.Component {
             toId: "",
             suggestionsFrom: "",
             suggestionsTo: "",
+            errorMessage: "",
         }
         this.handleDateChange = this.handleDateChange.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -69,6 +72,12 @@ class SearchForm extends React.Component {
                 this.setState({
                     data
                 })
+                history.push('results')
+            })
+            .catch((response) => {
+                this.setState({
+                    errorMessage: "Oopps.. Something went wrong. Search results not loaded."
+                })
             })
     }
 
@@ -111,6 +120,8 @@ class SearchForm extends React.Component {
                             <Button type="submit" className="btn btn-primary float-xs-right">Search</Button>
                         </Col>
                     </Row>
+                    {this.state.errorMessage ?
+                        <ErrorBar appError={this.state.errorMessage} dismissError={() => {this.setState({errorMessage: ""})}}/> : null}
                 </Form>
             </Col>
         )

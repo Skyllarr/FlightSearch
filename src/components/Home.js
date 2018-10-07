@@ -14,7 +14,7 @@ const Home = () => (
             </h2>
             <body>
             <div className="container mt-5" align="center">
-                This is a simple SPA created with React and 
+                This is a simple SPA created with React and
                 <a href={'https://skypickerpublicapi.docs.apiary.io/#'}> Skypicker API</a>
             </div>
             </body>
