@@ -12,12 +12,12 @@ const Home = () => (
             <h2>
                 You can search your flights on the top of the page.
             </h2>
-            <body>
+            <div>
             <div className="container mt-5" align="center">
                 This is a simple SPA created with React and
                 <a href={'https://skypickerpublicapi.docs.apiary.io/#'}> Skypicker API</a>
             </div>
-            </body>
+            </div>
         </div>
     </div>
 )

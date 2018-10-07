@@ -10,6 +10,8 @@ import {API_URL} from "../apiUtils/Urls"
 import Suggestions from './Suggestions'
 import ErrorBar from './ErrorBar'
 import history from '../routes/history'
+import {connect} from 'react-redux'
+import {setResults, setCurrency} from "../actions/actionCreators"
 
 class SearchForm extends React.Component {
 
@@ -70,8 +72,10 @@ class SearchForm extends React.Component {
         axios.get(`${API_URL}flights?v=2&locale=en&flyFrom=${this.state.fromId}&to=${this.state.toId}&dateFrom=${this.state.date.format('DD/MM/YYYY')}`)
             .then(({data}) => {
                 this.setState({
-                    data
+                    data: data.data
                 })
+                this.props.setResults(data.data)
+                this.props.setCurrency(data.currency)
                 history.push('results')
             })
             .catch((response) => {
@@ -128,4 +132,13 @@ class SearchForm extends React.Component {
     }
 }
 
-export default SearchForm
+export default connect(
+    (state) => ({
+        results: state.results,
+        errorMessage: state.errorMessage,
+    }),
+    (dispatch) => ({
+        setResults: (results) => dispatch(setResults(results)),
+        setCurrency: (currency) => dispatch(setCurrency(currency))
+    })
+)(SearchForm)

@@ -5,6 +5,7 @@ import {Col} from 'reactstrap'
 
 import history from './routes/history'
 import Home from './components/Home'
+import ResultsForm from './components/ResultsForm'
 
 
 class App extends Component {
@@ -13,6 +14,7 @@ class App extends Component {
             <Router history={history}>
                 <Col sm="12" lg={{size: 8, offset: 2}} className='mt-5'>
                     <Route exact path="/" component={Home}/>
+                    <Route exact path="/results" component={ResultsForm}/>
                 </Col>
             </Router>
         )
