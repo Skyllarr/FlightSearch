@@ -8,6 +8,7 @@ class ResultsForm extends React.Component {
 
     render() {
         let loader
+        let info
         let items
 
         if (this.props.loadingResults) {
@@ -17,7 +18,7 @@ class ResultsForm extends React.Component {
                 <img width="256" alt="Loading icon" className="loader"
                      src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"/>
             )
-        } else {
+        } else if (this.props.results.length > 0) {
             items = this.props.results.map((item, key) => {
                 return (
                     <tr key={key}>
@@ -29,6 +30,12 @@ class ResultsForm extends React.Component {
                     </tr>
                 )
             })
+        } else {
+            info = (
+                <div className="no-results-info">
+                    No results
+                </div>
+            )
         }
 
         return (
@@ -48,6 +55,7 @@ class ResultsForm extends React.Component {
                         {items}
                         </tbody>
                     </Table>
+                    {info}
                     {loader}
                 </div>
             </div>

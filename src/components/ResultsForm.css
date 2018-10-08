@@ -9,3 +9,7 @@
     display: block;
     margin: 0 auto;
 }
+
+.no-results-info {
+    text-align: center;
+}
