@@ -1,0 +1,8 @@
+.menu-link {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.menu-link:hover {
+    cursor: pointer !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+}
