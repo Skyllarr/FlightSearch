@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import './App.css'
 import {Route, Router} from 'react-router'
 import {Col} from 'reactstrap'
 
@@ -8,7 +7,6 @@ import Home from './components/Home'
 import ResultsForm from './components/ResultsForm'
 import SearchForm from './components/SearchForm'
 import NavBar from './components/NavBar'
-
 
 class App extends Component {
     render() {
