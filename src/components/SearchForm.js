@@ -9,7 +9,7 @@ import Suggestions from './Suggestions'
 import ErrorBar from './ErrorBar'
 import {nextPath} from '../routes/history'
 import {connect} from 'react-redux'
-import {setCurrency, setErrorMessage, setResults} from "../actions/actionCreators"
+import {setCurrency, setErrorMessage, setResults, setLoadingResults} from "../actions/actionCreators"
 import {getFlights, getSuggestions} from "../apiUtils/requests"
 
 class SearchForm extends React.Component {
@@ -81,6 +81,7 @@ class SearchForm extends React.Component {
             return
         }
 
+        this.props.setLoadingResults(true)
         getFlights(this.state.fromApiId, this.state.toApiId, this.state.date.format('DD/MM/YYYY'))
             .then(({data}) => {
                 this.setState({
@@ -89,9 +90,11 @@ class SearchForm extends React.Component {
                 this.props.setResults(data.data)
                 this.props.setCurrency(data.currency)
                 nextPath('results')
+                this.props.setLoadingResults(false)
             })
             .catch(() => {
                 this.props.setErrorMessage("Oopps.. Something went wrong. Search results not loaded.")
+                this.props.setLoadingResults(false)
             })
     }
 
@@ -154,5 +157,6 @@ export default connect(
         setResults: (results) => dispatch(setResults(results)),
         setCurrency: (currency) => dispatch(setCurrency(currency)),
         setErrorMessage: (errorMessage) => dispatch(setErrorMessage(errorMessage)),
+        setLoadingResults: (loadingResults) => dispatch(setLoadingResults(loadingResults))
     })
 )(SearchForm)
