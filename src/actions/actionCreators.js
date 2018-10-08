@@ -1,8 +1,4 @@
-import {
-    SET_RESULTS,
-    SET_ERROR,
-    SET_CURRENCY,
-} from './actionTypes'
+import {SET_CURRENCY, SET_ERROR, SET_RESULTS,} from './actionTypes'
 
 export const setResults = results => ({
     type: SET_RESULTS,

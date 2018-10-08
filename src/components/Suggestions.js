@@ -1,5 +1,5 @@
 import React from 'react'
-import '../css/styles.css'
+import './Suggestions.css'
 
 const ListItem = ({value, onClick}) => (
     <li onClick={onClick}>{value}</li>
@@ -15,13 +15,12 @@ const List = ({items, onItemClick}) => (
 )
 
 class Suggestions extends React.Component {
-
     handleSelect = (id, value) => {
         this.props.handlePickedSuggestion(this.props.name, value, id)
     }
 
     render() {
-        return this.props.suggestions? <List items={this.props.suggestions} onItemClick={this.handleSelect}/> : null
+        return this.props.suggestions.length > 0 ? <List items={this.props.suggestions} onItemClick={this.handleSelect}/> : null
     }
 }
 

@@ -5,13 +5,12 @@ import DatePicker from 'react-datepicker'
 import moment from 'moment'
 
 import 'react-datepicker/dist/react-datepicker.css'
-import axios from 'axios'
-import {API_URL} from "../apiUtils/Urls"
 import Suggestions from './Suggestions'
 import ErrorBar from './ErrorBar'
-import history from '../routes/history'
+import {nextPath} from '../routes/history'
 import {connect} from 'react-redux'
 import {setCurrency, setErrorMessage, setResults} from "../actions/actionCreators"
+import {getFlights, getSuggestions} from "../apiUtils/requests"
 
 class SearchForm extends React.Component {
 
@@ -20,67 +19,76 @@ class SearchForm extends React.Component {
         this.state = {
             date: moment(),
             from: "",
-            fromId: "",
+            fromApiId: "",
             to: "",
-            toId: "",
-            suggestionsFrom: "",
-            suggestionsTo: "",
-            errorMessage: "",
+            toApiId: "",
+            suggestionsFrom: [],
+            suggestionsTo: [],
         }
-        this.handleDateChange = this.handleDateChange.bind(this)
-        this.handleInputChange = this.handleInputChange.bind(this)
-        this.handlePickedSuggestion = this.handlePickedSuggestion.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
     }
 
-    handleDateChange(date) {
+    handleDateChange = (date) => {
         this.setState({
             date: date
         })
     }
 
-    handlePickedSuggestion(name, value, id) {
+    handlePickedSuggestion = (inputField, value, id) => {
         let suggestions
-        name === "from" ? suggestions = "suggestionsFrom" : suggestions = "suggestionsTo"
+        inputField === "from" ? suggestions = "suggestionsFrom" : suggestions = "suggestionsTo"
         let idToUpdate
-        name === "from" ? idToUpdate = "fromId" : idToUpdate = "toId"
-        this.setState({[name]: value, [suggestions]: "", [idToUpdate]: id})
-    }
-
-    handleInputChange = (name, event) => {
-        const value = event.target.value
-        this.setState({[name]: value}, () => {
-            if (value.length > 1) {
-                this.getSuggestions(name, value)
-            }
+        inputField === "from" ? idToUpdate = "fromApiId" : idToUpdate = "toApiId"
+        this.setState({
+            [inputField]: value,
+            [suggestions]: [],
+            [idToUpdate]: id
         })
     }
 
-    getSuggestions = (name, value) => {
-        axios.get(`${API_URL}places?term=${value}&v=2&locale=en`)
-            .then(({data}) => {
-                name === "from" ? name = "suggestionsFrom" : name = "suggestionsTo"
-                this.setState({
-                    [name]: data
+    handleInputChange = (inputField, event) => {
+        const value = event.target.value
+        this.setState({[inputField]: value})
+        if (value.length > 1) {
+            getSuggestions(value)
+                .then(({data}) => {
+                    inputField === "from" ? inputField = "suggestionsFrom" : inputField = "suggestionsTo"
+                    this.setState({
+                        [inputField]: data
+                    })
+                    this.setInputFromSuggestions(inputField, value)
                 })
+        }
+    }
+
+    setInputFromSuggestions = (suggestionsField, value) => {
+        let suggestions = suggestionsField === "suggestionsFrom" ? this.state.suggestionsFrom : this.state.suggestionsTo
+        if (suggestions) {
+            let found = suggestions.find((elem) => {
+                return elem.value === value
             })
+            if (found) {
+                this.handlePickedSuggestion(suggestionsField === "suggestionsFrom" ? "from" : "to", found.value, found.id)
+            }
+        }
     }
 
     handleSubmit = (event) => {
         event.preventDefault()
         this.props.setErrorMessage("")
-        if (!this.state.fromId || !this.state.toId) {
+
+        if (!this.state.fromApiId || !this.state.toApiId) {
             this.props.setErrorMessage("Please choose from the suggestions.")
             return
         }
-        axios.get(`${API_URL}flights?v=2&locale=en&flyFrom=${this.state.fromId}&to=${this.state.toId}&dateFrom=${this.state.date.format('DD/MM/YYYY')}`)
+
+        getFlights(this.state.fromApiId, this.state.toApiId, this.state.date.format('DD/MM/YYYY'))
             .then(({data}) => {
                 this.setState({
                     data: data.data
                 })
                 this.props.setResults(data.data)
                 this.props.setCurrency(data.currency)
-                history.push('results')
+                nextPath('results')
             })
             .catch(() => {
                 this.props.setErrorMessage("Oopps.. Something went wrong. Search results not loaded.")
@@ -88,37 +96,38 @@ class SearchForm extends React.Component {
     }
 
     render() {
+        const error = this.props.errorMessage ?
+            <ErrorBar appError={this.props.errorMessage} dismissError={() => {
+                this.props.setErrorMessage("")
+            }}/> : null
         return (
             <Col>
-                {this.props.errorMessage ?
-                <ErrorBar appError={this.props.errorMessage} dismissError={() => {
-                    this.props.setErrorMessage("")
-                }}/> : null}
+                {error}
                 <Form onSubmit={this.handleSubmit}>
                     <Row>
-                        <Label for="from" className="col-form-label">From:</Label>
+                        <Label for="from" className="ml-xs-3 ml-sm-3 ml-lg-0 col-form-label">From:</Label>
                         <Col lg={3}>
                             <Input type="text"
                                    className="form-control"
                                    id="from"
                                    value={this.state.from}
-                                   onChange={this.handleInputChange.bind(this, "from")}
+                                   onChange={(e) => this.handleInputChange("from", e)}
                                    required/>
                             <Suggestions suggestions={this.state.suggestionsFrom} name="from"
                                          handlePickedSuggestion={this.handlePickedSuggestion}/>
                         </Col>
-                        <Label for="to" className="col-form-label">To:</Label>
+                        <Label for="to" className="ml-xs-3 ml-sm-3 ml-lg-0 col-form-label">To:</Label>
                         <Col lg={3}>
                             <Input type="text"
                                    className="form-control"
                                    id="to"
                                    value={this.state.to}
-                                   onChange={this.handleInputChange.bind(this, "to")}
+                                   onChange={(e) => this.handleInputChange("to", e)}
                                    required/>
                             <Suggestions suggestions={this.state.suggestionsTo} name="to"
                                          handlePickedSuggestion={this.handlePickedSuggestion}/>
                         </Col>
-                        <Label for="date" className="col-form-label">Date:</Label>
+                        <Label for="date" className="ml-xs-3 ml-sm-3 ml-lg-0 col-form-label">Date:</Label>
                         <Col lg={3}>
                             <DatePicker
                                 className="form-control"
@@ -144,6 +153,6 @@ export default connect(
     (dispatch) => ({
         setResults: (results) => dispatch(setResults(results)),
         setCurrency: (currency) => dispatch(setCurrency(currency)),
-        setErrorMessage: (errorMessage) => dispatch(setErrorMessage(errorMessage))
+        setErrorMessage: (errorMessage) => dispatch(setErrorMessage(errorMessage)),
     })
 )(SearchForm)
