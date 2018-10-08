@@ -7,7 +7,7 @@ import './NavBar.css'
 const NavBar = () => (
     <div>
         <Navbar color="dark" className="menu-link" dark expand="md">
-            <NavbarBrand className="ml-lg-5" onClick={() => nextPath('/')}>Home</NavbarBrand>
+            <NavbarBrand className="ml-lg-5" onClick={() => nextPath('/')}>Flight Search</NavbarBrand>
         </Navbar>
     </div>
 )
